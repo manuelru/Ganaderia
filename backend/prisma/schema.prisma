@@ -1,0 +1,29 @@
+// 1. Esto le dice a Prisma que genere el código para JavaScript/TypeScript
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 2. Esto define que usarás SQLite y dónde se guardará el archivo de la base de datos
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// 3. Tu modelo de Animal (el que ya tienes)
+model Animal {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  sexo            String   
+  fechaNacimiento DateTime
+  fechaDestete    DateTime? 
+
+  madreId         Int?
+  madre           Animal?  @relation("RelacionMadre", fields: [madreId], references: [id])
+  hijosPorMadre   Animal[] @relation("RelacionMadre")
+
+  padreId         Int?
+  padre           Animal?  @relation("RelacionPadre", fields: [padreId], references: [id])
+  hijosPorPadre   Animal[] @relation("RelacionPadre")
+
+  createdAt       DateTime @default(now())
+}
