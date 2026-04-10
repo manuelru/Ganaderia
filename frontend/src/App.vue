@@ -1,100 +1,50 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
-
-// Interfaces para TypeScript
-interface Animal {
-  id: number;
-  nombre: string;
-}
-
-// Estado del formulario
-const nombre = ref('')
-const sexo = ref('Hembra')
-const fechaNacimiento = ref('')
-const fechaDestete = ref('')
-const padreId = ref<number | null>(null)
-const madreId = ref<number | null>(null)
-
-// Listas para los selects
-const listaPadres = ref<Animal[]>([])
-const listaMadres = ref<Animal[]>([])
-
-// Cargar padres y madres al iniciar
-const cargarProgenitores = async () => {
-  try {
-    const res = await axios.get('http://localhost:3000/animales')
-    const todos = res.data
-    listaPadres.value = todos.filter((a: any) => a.sexo === 'Macho')
-    listaMadres.value = todos.filter((a: any) => a.sexo === 'Hembra')
-  } catch (error) {
-    console.error("Error cargando animales", error)
-  }
-}
-
-const registrarAnimal = async () => {
-  try {
-    const payload = {
-      nombre: nombre.value,
-      sexo: sexo.value,
-      fechaNacimiento: fechaNacimiento.value,
-      fechaDestete: fechaDestete.value || null,
-      padreId: padreId.value,
-      madreId: madreId.value
-    }
-    await axios.post('http://localhost:3000/animales', payload)
-    alert("¡Animal registrado con éxito!")
-    // Limpiar formulario o recargar lista
-  } catch (error: any) {
-    alert(error.response?.data?.error || "Error al registrar")
-  }
-}
-
-onMounted(cargarProgenitores)
-</script>
-
 <template>
-  <div class="container">
-    <h1>Registro de Ganado</h1>
-    
-    <form @submit.prevent="registrarAnimal">
-      <label>Nombre del Animal:</label>
-      <input v-model="nombre" type="text" required />
+  <div class="app-wrapper">
+    <nav class="main-nav">
+      <div class="nav-content">
+        <h1 class="logo-title">
+          Ganadería App 🤠
+          <img 
+            src="https://scontent.fmga9-2.fna.fbcdn.net/v/t39.30808-6/607038253_2353931871722071_220401672892895015_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=2a1932&_nc_ohc=-o4rKQl93IsQ7kNvwHsJUzt&_nc_oc=AdonkEyKp3HWSgvB_dRPzpUuE_eoq2vC5P-zCsDzF0osie2yhgw3tcQoTaYoLLOc8CM&_nc_zt=23&_nc_ht=scontent.fmga9-2.fna&_nc_gid=HLhnhi6zw1zRFLrFfqOW7Q&_nc_ss=7a3a8&oh=00_Af2Pi5dDodJWrvWE1aGgJrDHz0wiZ0KvnTiLcoYopJbhoA&oe=69DE0C8B" 
+            alt="Logo" 
+            class="nav-logo"
+          />
+        </h1>
+        
+        <div class="menu">
+          <router-link to="/lista" class="nav-link">Ver Registros</router-link>
+          <router-link to="/agregar" class="nav-link btn-add">+ Nuevo Registro</router-link>
+        </div>
+      </div>
+    </nav>
 
-      <label>Sexo:</label>
-      <select v-model="sexo">
-        <option value="Macho">Macho</option>
-        <option value="Hembra">Hembra</option>
-      </select>
-
-      <label>Fecha de Nacimiento:</label>
-      <input v-model="fechaNacimiento" type="date" required />
-
-      <label>Fecha de Destete (Opcional):</label>
-      <input v-model="fechaDestete" type="date" />
-
-      <label>Padre:</label>
-      <select v-model="padreId">
-        <option :value="null">Ninguno / Desconocido</option>
-        <option v-for="p in listaPadres" :key="p.id" :value="p.id">{{ p.nombre }} (ID: {{ p.id }})</option>
-      </select>
-
-      <label>Madre:</label>
-      <select v-model="madreId">
-        <option :value="null">Ninguno / Desconocida</option>
-        <option v-for="m in listaMadres" :key="m.id" :value="m.id">{{ m.nombre }} (ID: {{ m.id }})</option>
-      </select>
-
-      <button type="submit">Guardar Registro</button>
-    </form>
+    <div class="content">
+      <router-view></router-view> 
+    </div>
   </div>
 </template>
 
-<style scoped>
-.container { max-width: 500px; margin: auto; font-family: sans-serif; }
-form { display: flex; flex-direction: column; gap: 10px; }
-label { font-weight: bold; margin-top: 5px; }
-input, select, button { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-button { background-color: #2c3e50; color: white; cursor: pointer; margin-top: 15px; }
-button:hover { background-color: #34495e; }
+<style>
+/* --- Tus estilos originales --- */
+.main-nav { background: #2c3e50; color: white; padding: 1rem; }
+.nav-content { display: flex; justify-content: space-between; align-items: center; max-width: 1000px; margin: 0 auto; }
+.nav-link { color: white; text-decoration: none; margin-left: 20px; padding: 10px; }
+.btn-add { background: #27ae60; border-radius: 5px; }
+.content { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+body { margin: 0; font-family: sans-serif; background-color: #f9f9f9; }
+
+/* --- NUEVOS ESTILOS PARA LA IMAGEN --- */
+.logo-title {
+  display: flex;
+  align-items: center; /* Esto centra verticalmente el texto, el emoji y la imagen */
+  gap: 10px;           /* Espacio entre el emoji y la imagen */
+  margin: 0;
+}
+
+.nav-logo {
+  height: 40px;        /* Ajusta el tamaño a tu gusto */
+  width: auto;
+  border-radius: 4px;  /* Opcional: bordes redondeados */
+  object-fit: contain;
+}
 </style>
